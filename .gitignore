@@ -34,3 +34,5 @@ vignettes/*.pdf
 
 # Top-Level
 ./*.pdf
+/.project
+/*.pdf

@@ -74,13 +74,7 @@ numPlots <- 10
 par(mfrow = c(2, numPlots / 2), bg = nord::nord("polarnight")[1])
 for (s in seq(numPlots)) {
   
-  depth <- 3
-  
-  # generate a set of responses
-  salt <- as.numeric(Sys.time()) %% 17
-  set.seed(salt + s)
-  sequence <- runif(4 ^ depth) > .3
-  
+
   # actual snowflake: 6-fold symmetry
   
   mir <- function(tri) {
@@ -109,14 +103,38 @@ for (s in seq(numPlots)) {
     }
   }
   
-  sequence <- make_mir(sequence)
+  make_side <- function(tri, left = TRUE) {
+    if (l <- length(tri) == 1) {
+      TRUE
+    } else {
+      l <- length(tri)
+      m <- l/2
+      a <- m/2
+      b <- a+m
+      c(if (left) make_side(tri[1:a], left) else tri[1:a],
+          if (!left) make_side(tri[(a+1):m], left) else tri[(a+1):m],
+          make_side(tri[(m+1):b], left),
+          tri[(b+1):l])
+    }
+  }
+  
+  depth <- 4
+  
+  # generate a set of responses
+  salt <- as.numeric(Sys.time()) %% 17
+  set.seed(salt + s)
+  sequence <- runif(4 ^ depth) > .6
+  
+  
+  sequence <- make_mir(make_side(sequence))
   
   # repeated palettes
-  pal[sequence] <- rep(nord::nord("polarnight"), length(sequence))[which(sequence)]
-  pal[!sequence] <- rep(nord::nord("snowstorm"), length(sequence))[which(!sequence)]
+  pal <- sequence
+  pal[!sequence] <- rep(nord::nord("polarnight"), length(sequence))[which(sequence)]
+  pal[sequence] <- rep(nord::nord("snowstorm"), length(sequence))[which(!sequence)]
   
   # draw a snowflake
-  plotFlake(depth, pal = rep(pal, 6), lty = 0)
+  plotFlake(depth, pal = rep(pal, 6), lty = 0, sym = TRUE)
  
 }
 
